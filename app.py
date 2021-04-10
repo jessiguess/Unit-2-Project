@@ -1,96 +1,147 @@
 from constants import PLAYERS
 from constants import TEAMS
 import random
+master_list = PLAYERS.copy()
 
-# Placeholder for a variable I haven't defined yet, so the program still runs.
-player_names = 'j'
-
-# Gives the user the option between showing player stats or exiting the application
-def first_menu_choice():
-    choice_one = input("Please choose an option: ")
-    if choice_one == 'a':
-        second_menu_choice()
-    else:
-        print("Have a good day!")
-
-def second_menu_choice():
-    # Gives the user the choice between teams to show stats for
-    dashes = '-' * 20
-    print("\nChoose a team:\n(A) Panthers\n(B) Bandits\n(C) Warriors\n\n")
-    second_choice = input("Please choose an option: ")
-    
-    # This will need to be formatted differently once I can properly populate the teams
-    if second_choice.lower() == 'a':
-        print("Team: Panthers\n", dashes, "\nTotal players: {}\nPlayers:\n{}\n".format(balance_teams(), player_names))
-    elif second_choice.lower() == 'b':
-        print("Team: Bandits\n", dashes, "\nTotal players: {}\nPlayers:\n{}\n".format(balance_teams(), player_names))
-    elif second_choice.lower() == 'c':
-        print("Team: Warriors\n", dashes, "\nTotal players: {}\nPlayers:\n{}\n".format(balance_teams(), player_names))
 
 def clean_data():
-    # Converts all the heights from constants.py into an ordered list of integers
-    height_list = []
-    player_height = [i['height'] for i in PLAYERS]
-    for height in player_height:
-        height_list.append(int(height[0:2]))
+    index = 0
     
-    # Converts all experience values from constants.py into an ordered list of boolean values
-    experience_list = []
-    player_experience = [i['experience'] for i in PLAYERS]
-    for experience in player_experience:
-        if experience == 'YES':
-            experience_list.append(True)
-        elif experience == 'NO':
-            experience_list.append(False)
+    # Converts all the experience values to boolean values
+    for item in master_list:
+        if master_list[index]['experience'] == 'YES':
+            master_list[index]['experience'] = True
+        else:
+            master_list[index]['experience'] = False
             
-    # Saves all names in an ordered list
-    player_names = [i['name'] for i in PLAYERS]
-    
-    # Saves all guardians in an ordered list
-    player_guardians = [i['guardians'] for i in PLAYERS]
+    # Converts all the heights into integers
+        master_list[index]['height'] = int(master_list[index]['height'][0:2])
+        
+        index += 1
+        
+    # Saves them to the master_list dictionary
+    return master_list
 
-    # Creates a list of players
-    # Index 0 is names, index 1 is their parents, index 2 is their experience, index 3 is their height
-    player_list = [player_names, player_guardians, experience_list, height_list]
-    return player_list
 
-# Calculates the number of players each team should have
+# Returns the number of players each team should have
 def balance_teams():
     num_players_team = len(PLAYERS) / len(TEAMS)
     return num_players_team
         
-# Splits up the 18 players into the three teams, randomly
-# 18 can't be a concrete number because the function should be set up so players can be added/removed
-def adding_players_to_teams():
+
+# Splits up the players evenly into the teams, randomly
+# Returns the populated teams
+def teams_unpacker():
     panthers = []
     bandits = []
-    warriors = []
+    clean_data()
     
-    length_of_players = len(clean_data()[0])
-    while len(panthers) != balance_teams():
-        number = random.randint(0, length_of_players)
-        panthers.append(clean_data()[0][number])
-        del clean_data()[0][number]
+    while len(panthers) != number_of_players:
+        number = random.randint(0, len(master_list) - 1)
+        panthers.append(master_list[number])
+        del master_list[number]
         
-adding_players_to_teams()
-                            
-                            
-
-# Dunder main if-statement that isn't needed until the rest of my code runs correctly
+    while len(bandits) != number_of_players:
+        number = random.randint(0, len(master_list) - 1)
+        bandits.append(master_list[number])
+        del master_list[number]
         
-#if __name__ == '__main__':
-#    print('\nBASKETBALL TEAM STATS')
-#    print('\n--MENU--\n')
-#    print("Choices:\n(A): Display team stats\n(B): Quit")
-#    balance_teams()
-#    first_menu_choice()
-#    clean_data()
-#    print(clean_data())
+    warriors = master_list
+    return (panthers, bandits, warriors)
 
+
+# Displays the greeting and the first two options in the main menu
+def first_menu_choice():
+    print('\nBASKETBALL TEAM STATS')
+    print('\n--MENU--\n')
+    print("Choices:\n(1): Display team stats\n(2): Quit")
+    while True:
+        try:
+            choice_one = int(input("Please choose an option: "))
+            if choice_one > 2:
+                raise ValueError()
+            if choice_one < 1:
+                raise ValueError()
+        except ValueError:
+            print("\nPlease enter the number 1 or 2.")
+        else:
+            if choice_one == 1:
+                second_menu_choice()
+                # Exits program once declining the restart option
+                print("Have a nice day!")
+                break
+            else:
+                print("Have a good day!")
+                break
+            
+
+# Gives the user the choice between teams to show stats for
+def second_menu_choice():
+    
+    print("\nTeams:\n(1) Panthers\n(2) Bandits\n(3) Warriors\n")
+    while True:
+        try:
+            second_choice = int(input("Please choose an option: "))
+            if second_choice < 1:
+                raise ValueError
+            elif second_choice > 3:
+                raise ValueError
+        except ValueError:
+            print("\nPlease choose a number 1, 2 or 3.")
+        else:
+            dashes = '-' * 20
+        
+            if second_choice == 1:
+                print("\nTeam: Panthers\n", dashes, "\nTotal players: {}\n".format(number_of_players), "\nPlayers:")
+                print(*panther_names, sep = ", ")
+                restart_program()
+                break
+                
+            elif second_choice == 2:
+                print("\nTeam: Bandits\n", dashes, "\nTotal players: {}\n".format(number_of_players), "\nPlayers:")
+                print(*bandit_names, sep = ", ")
+                restart_program()
+                break
+                
+            elif second_choice == 3:
+                print("\nTeam: Warriors\n", dashes, "\nTotal players: {}\n".format(number_of_players), "\nPlayers:")
+                print(*warrior_names, sep = ", ")
+                restart_program()
+                break
+
+                
+# Prompts the user if they would like to return to the main menu or exit the program
+def restart_program():
+    while True:
+        try:
+            restart = int(input("\n(1) Main Menu \n(2) Exit \nPlease choose an option: "))
+            if restart < 1:
+                raise ValueError
+            elif restart > 2:
+                raise ValueError
+        except ValueError:
+            print("\nPlease enter the number 1 or 2.")
+        else:
+            if restart == 1:
+                first_menu_choice()
+            elif restart == 2:
+                break
+
+
+while __name__ == '__main__':
+    
+    number_of_players = int(balance_teams())
+    panthers, bandits, warriors = teams_unpacker()
+    panther_names = [i['name'] for i in panthers]
+    bandit_names = [i['name'] for i in bandits]
+    warrior_names = [i['name'] for i in warriors]
+    first_menu_choice()
+    break
     
     
     
     
-    
-    
-    
+
+
+
+
