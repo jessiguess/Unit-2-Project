@@ -19,7 +19,7 @@ def clean_data():
         
         # Changes the guardian values of more than 1 parent into a list of both parents separated by a comma
         guardians = master_list[index]['guardians']
-        master_list[index]['guardians'] = guardians.split("and ")
+        master_list[index]['guardians'] = guardians.split(" and ")
         
         index += 1
         
@@ -33,28 +33,52 @@ def balance_teams():
     return num_players_team
         
 
-# Splits up the players evenly into the teams, randomly
-# Returns the populated teams
+# Creates 2 new lists, one for experienced players and the other for inexperienced players
+# Assigns 3 random experienced players and 3 random inexperienced players to each team
+# Returns the new team lists
 def teams_unpacker():
-    panthers = []
-    bandits = []
     clean_data()
     
+    panthers = []
+    bandits = []
+    
+    experienced_players = [] 
+    inexperienced_players = []
+    
+    half_team = int(number_of_players / 2)
+    
+    index = 0
+    for player in master_list:
+        if master_list[index]['experience'] == True:
+            experienced_players.append(player)
+        elif master_list[index]['experience'] == False:
+            inexperienced_players.append(player)
+        index += 1
+
+    while len(panthers) != half_team:
+        number = random.randint(0, len(experienced_players) - 1)
+        panthers.append(experienced_players[number])
+        del experienced_players[number]
     while len(panthers) != number_of_players:
-        number = random.randint(0, len(master_list) - 1)
-        panthers.append(master_list[number])
-        del master_list[number]
-        
+        number = random.randint(0, len(inexperienced_players) - 1)
+        panthers.append(inexperienced_players[number])
+        del inexperienced_players[number]
+    
+    while len(bandits) != half_team:
+        number = random.randint(0, len(experienced_players) - 1)
+        bandits.append(experienced_players[number])
+        del experienced_players[number]
     while len(bandits) != number_of_players:
-        number = random.randint(0, len(master_list) - 1)
-        bandits.append(master_list[number])
-        del master_list[number]
+        number = random.randint(0, len(inexperienced_players) - 1)
+        bandits.append(inexperienced_players[number])
+        del inexperienced_players[number]
         
-    warriors = master_list
+    warriors = experienced_players + inexperienced_players
+    
     return (panthers, bandits, warriors)
 
 
-# Calculates the average height for a team
+# Calculates the average height for each team
 def team_heights(team_name):
     height = [i['height'] for i in team_name]
     total = 0
@@ -64,19 +88,30 @@ def team_heights(team_name):
     return int(average_height)
 
 
+# Formats what stats print when a team is selected
+# Team name, number of players, number of inexperienced and experienced, names of all players, names of all player guardians
 def team_stats(team, team_name, team_names, team_guardians):
     dashes = '-' * 12
     print("\nTeam: {}\n".format(team), dashes, "\nTotal players: {}".format(number_of_players))
-    print("Average height:{}\n".format(team_heights(team_name)))
+    print("Total experienced: {}".format(int(number_of_players / 2)))
+    print("Total inexperienced: {}".format(int(number_of_players / 2)))
+    print("Average height: {}\n".format(team_heights(team_name)))
     print("Players:")
     print(*team_names, sep = ", ")
+    
     print("\nGuardians:")
     index = 0
+    team_guardians_list = []
     for item in team_guardians:
-        print(*team_guardians[index], sep = ", ")
+        if len(team_guardians[index]) == 2:
+            team_guardians_list.append(team_guardians[index][0])
+            team_guardians_list.append(team_guardians[index][1])
+        else:
+            team_guardians_list.append(team_guardians[index][0])
         index += 1
+    print(*team_guardians_list, sep = ", ")
         
-
+# Lets the user decide between showing stats and quitting, while catching errors
 def first_menu():
     while True:
         try:
@@ -90,6 +125,7 @@ def first_menu():
             break
         
         
+# Lets the user choose which team to show stats for, while catching errors
 def second_menu():
     while True:
         try:
@@ -102,7 +138,7 @@ def second_menu():
             return second_menu_choice
             break
         
-        
+# Allows the user to restart the tool, if desired, while catching errors
 def restart_program():
     while True:
         try:
@@ -154,7 +190,5 @@ while __name__ == '__main__':
         elif restart == 2:
             print("Have a good day!")
             break
-            
+    # End program
     break
-        
-        
